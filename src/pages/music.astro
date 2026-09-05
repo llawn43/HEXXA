@@ -1,0 +1,184 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import ReleaseCard from "../components/ReleaseCard.astro";
+import EmbedFacade from "../components/EmbedFacade.astro";
+import CTAButton from "../components/CTAButton.astro";
+import Icon from "../components/Icon.astro";
+
+import { releases, flips, startHereRelease, releaseCredit } from "../data/releases";
+import { links } from "../data/socials";
+
+// Newest first is already the authored order; group by year for the timeline.
+const byYear = releases.reduce<Map<number, typeof releases>>((groups, release) => {
+  const bucket = groups.get(release.year) ?? [];
+  bucket.push(release);
+  groups.set(release.year, bucket);
+  return groups;
+}, new Map());
+
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+
+<Layout
+  title="Music"
+  description="Every HEXXA release — singles, EPs and remixes across Kannibalen, Bassrush and Subsidia. Stream, buy and start with FEMME FATALE."
+>
+  <PageHeader
+    eyebrow="Discography"
+    title="The Grimoire"
+    lede="Every curse committed to record. Singles, EPs and remixes spanning Kannibalen, Bassrush and Subsidia."
+  >
+    <div class="mt-8 flex flex-wrap gap-3">
+      <CTAButton href={links.spotifyArtist} icon="spotify" external>Spotify</CTAButton>
+      <CTAButton href={links.beatportArtist} variant="outline" icon="beatport" external>
+        Beatport
+      </CTAButton>
+      <CTAButton href={links.soundcloud} variant="outline" icon="soundcloud" external>
+        SoundCloud
+      </CTAButton>
+    </div>
+  </PageHeader>
+
+  <!-- ===================== START HERE ===================== -->
+  {
+    startHereRelease && (
+      <section class="border-b border-bone/10 bg-void py-16 lg:py-20">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+          <div class="grid gap-10 lg:grid-cols-[minmax(0,20rem)_1fr] lg:items-center lg:gap-14">
+            <div class="reveal">
+              <ReleaseCard release={startHereRelease} tone="crimson" />
+            </div>
+
+            <div class="reveal">
+              <div class="flex items-center gap-3">
+                <span class="h-px w-8 bleed-gradient" aria-hidden="true" />
+                <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.26em] text-crimson">
+                  Start here
+                </span>
+              </div>
+
+              <h2 class="mt-4 text-[length:var(--text-section)] text-bone">
+                If you only hear one track
+              </h2>
+
+              <blockquote class="mt-6 max-w-2xl text-pretty font-display text-2xl leading-tight tracking-wide text-bone sm:text-3xl">
+                &ldquo;It's aggressive, sassy, and unapologetic, which is exactly how I approach
+                my music and my sets. If you want to understand my energy as an artist, that
+                track says it all.&rdquo;
+              </blockquote>
+
+              <p class="mt-4 font-sans text-xs uppercase tracking-[0.18em] text-crimson">
+                HEXXA on &ldquo;{startHereRelease.title}&rdquo;
+              </p>
+
+              <p class="mt-6 font-sans text-sm text-ash">
+                {releaseCredit(startHereRelease)} &middot; {startHereRelease.year}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ===================== FULL DISCOGRAPHY ===================== -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <SectionHeading eyebrow="Full catalogue" title="Every Release" />
+
+      <div class="mt-14 space-y-16">
+        {
+          years.map((year) => (
+            <div>
+              <div class="reveal flex items-center gap-5">
+                <h3 class="font-display text-3xl text-crimson sm:text-4xl">{year}</h3>
+                <span class="h-px flex-1 bg-bone/10" aria-hidden="true" />
+                <span class="font-sans text-xs uppercase tracking-[0.18em] text-ash">
+                  {byYear.get(year)!.length} release{byYear.get(year)!.length === 1 ? "" : "s"}
+                </span>
+              </div>
+
+              <div class="mt-8 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+                {byYear.get(year)!.map((release, index) => (
+                  <ReleaseCard
+                    release={release}
+                    tone={index % 2 === 0 ? "crimson" : "violet"}
+                    headingLevel="h4"
+                  />
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SPOTIFY PLAYER ===================== -->
+  <section class="border-y border-bone/10 bg-ink py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:items-center lg:gap-14">
+        <div>
+          <SectionHeading eyebrow="Now streaming" title="Summon The Playlist" />
+          <p class="reveal mt-5 max-w-md text-pretty font-sans leading-relaxed text-ash">
+            The essential tracks, all in one place. Follow on Spotify to get every new curse
+            the day it drops.
+          </p>
+          <CTAButton href={links.spotifyArtist} class="mt-8" icon="spotify" external>
+            Follow on Spotify
+          </CTAButton>
+        </div>
+
+        <EmbedFacade
+          provider="spotify"
+          embedId={`artist/${links.spotifyArtistId}`}
+          title="HEXXA on Spotify"
+          fallbackHref={links.spotifyArtist}
+          class="reveal"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FLIPS ===================== -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <SectionHeading eyebrow="Free downloads" title="Edits & Bootlegs" />
+
+      <p class="reveal mt-5 max-w-2xl font-sans leading-relaxed text-ash">
+        The twisted edits that turn up in the sets. Free on SoundCloud.
+      </p>
+
+      <ul class="mt-10 border-t border-bone/10">
+        {
+          flips.map((flip) => (
+            <li class="reveal border-b border-bone/10 transition-colors hover:bg-bone/[0.02]">
+              <a
+                href={links.soundcloud}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex flex-wrap items-center justify-between gap-4 py-5"
+              >
+                <div class="min-w-0">
+                  <h3 class="font-display text-xl tracking-wide text-bone sm:text-2xl">
+                    {flip.title}
+                  </h3>
+                  <p class="mt-1 font-sans text-sm text-ash">
+                    {flip.original} &middot; {flip.credit}
+                  </p>
+                </div>
+
+                <span class="inline-flex items-center gap-2 font-sans text-[0.66rem] font-bold uppercase tracking-[0.18em] text-crimson">
+                  <Icon name="soundcloud" size={16} />
+                  Listen
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Layout>

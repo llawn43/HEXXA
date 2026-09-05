@@ -1,0 +1,57 @@
+---
+/**
+ * Infinite horizontal ticker used as a band of social proof (festivals played)
+ * and as a section divider.
+ *
+ * The item list is rendered twice so the -50% translation loops seamlessly.
+ * The duplicate is hidden from assistive tech to avoid reading everything out
+ * twice, and the whole thing freezes under prefers-reduced-motion.
+ */
+interface Props {
+  items: readonly string[];
+  class?: string;
+  /** Separator drawn between items. */
+  separator?: string;
+}
+
+const { items, class: className = "", separator = "✕" } = Astro.props;
+---
+
+<div
+  class:list={[
+    "group relative flex overflow-hidden border-y border-bone/10 bg-ink py-4 select-none",
+    className,
+  ]}
+>
+  <!-- Fade the edges so items enter and exit rather than snapping. -->
+  <div
+    class="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-ink to-transparent sm:w-32"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-ink to-transparent sm:w-32"
+    aria-hidden="true"
+  >
+  </div>
+
+  <ul
+    class="animate-marquee flex shrink-0 items-center gap-8 pr-8 group-hover:[animation-play-state:paused]"
+  >
+    {
+      [...items, ...items].map((item, index) => (
+        <li
+          class="flex shrink-0 items-center gap-8"
+          aria-hidden={index >= items.length ? "true" : undefined}
+        >
+          <span class="font-display text-lg tracking-[0.14em] whitespace-nowrap text-bone/80 sm:text-xl">
+            {item}
+          </span>
+          <span class="text-sm text-crimson" aria-hidden="true">
+            {separator}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</div>

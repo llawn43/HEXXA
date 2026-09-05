@@ -1,0 +1,54 @@
+---
+/**
+ * Section headings carry the ritual voice: `eyebrow` states plainly what the
+ * section is, `title` is HEXXA's language for it.
+ */
+interface Props {
+  /** Small plain-language label, e.g. "Tour dates". */
+  eyebrow?: string;
+  /** Large display heading, e.g. "Upcoming Rituals". */
+  title: string;
+  /** Renders as h1 on page headers, h2 in body sections. */
+  as?: "h1" | "h2";
+  align?: "left" | "center";
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  as: Tag = "h2",
+  align = "left",
+  class: className = "",
+}: Props = Astro.props;
+---
+
+<div
+  class:list={[
+    "reveal flex flex-col gap-3",
+    align === "center" && "items-center text-center",
+    className,
+  ]}
+>
+  {
+    eyebrow && (
+      <div class:list={["flex items-center gap-3", align === "center" && "justify-center"]}>
+        <span class="h-px w-8 bleed-gradient" aria-hidden="true" />
+        <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.26em] text-crimson">
+          {eyebrow}
+        </span>
+      </div>
+    )
+  }
+
+  <Tag
+    class:list={[
+      "text-balance text-bone",
+      Tag === "h1" ? "text-[length:var(--text-display)]" : "text-[length:var(--text-section)]",
+    ]}
+  >
+    {title}
+  </Tag>
+
+  <slot />
+</div>

@@ -1,0 +1,164 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import BrandImage from "../components/BrandImage.astro";
+import PressQuote from "../components/PressQuote.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import CTAButton from "../components/CTAButton.astro";
+import SocialRail from "../components/SocialRail.astro";
+import Sigil from "../components/Sigil.astro";
+
+import { bio } from "../data/bio";
+import { images } from "../data/assets";
+import { site } from "../data/site";
+import { links } from "../data/socials";
+import { href } from "../lib/url";
+---
+
+<Layout
+  title="About"
+  description="HEXXA is a Philadelphia dubstep artist and pioneering drag performer in the bass scene. The story behind the dubstep demon."
+>
+  <PageHeader eyebrow="About" title="The Dubstep Demon" lede={bio.oneLiner} />
+
+  <!-- ===================== BIO + PORTRAIT ===================== -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-12 lg:grid-cols-[1.35fr_1fr] lg:gap-16">
+        <div class="reveal">
+          <p
+            class="text-balance font-display text-3xl leading-[0.95] tracking-wide text-bone sm:text-4xl lg:text-5xl"
+          >
+            {bio.pull}
+          </p>
+
+          <p class="mt-8 text-pretty font-sans text-lg leading-relaxed text-bone/85">
+            {bio.long}
+          </p>
+
+          <div class="mt-8 space-y-6">
+            {
+              bio.story.map((paragraph) => (
+                <p class="text-pretty font-sans leading-relaxed text-ash">{paragraph}</p>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="reveal">
+          <div class="border border-bone/10 glow-crimson">
+            <BrandImage
+              src={images.portrait}
+              alt="HEXXA in full look"
+              ratio="2/3"
+              tone="crimson"
+              placeholderLabel="Portrait, in full look — see ASSETS.md"
+            />
+          </div>
+
+          <dl class="mt-8 divide-y divide-bone/10 border-y border-bone/10">
+            {
+              bio.facts.map((fact) => (
+                <div class="flex items-baseline justify-between gap-4 py-3.5">
+                  <dt class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.2em] text-ash">
+                    {fact.label}
+                  </dt>
+                  <dd class="text-right font-sans text-sm text-bone">{fact.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <SocialRail all class="mt-8" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== THE MISSION ===================== -->
+  <!-- Queer visibility in the bass scene is stated repeatedly in her own
+       interviews, so it gets its own section rather than a footnote. -->
+  <section class="relative overflow-hidden border-y border-bone/10 bg-ink py-16 lg:py-24">
+    <Sigil
+      size={560}
+      spin
+      class="pointer-events-none absolute -left-40 top-1/2 -translate-y-1/2 text-violet/[0.09]"
+    />
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_80%_at_85%_20%,rgba(160,32,240,0.14)_0%,transparent_65%)]"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <SectionHeading eyebrow="The mission" title="Paving The Way" />
+
+          <p class="reveal mt-6 text-pretty font-sans text-lg leading-relaxed text-bone/85">
+            HEXXA is a pioneering drag artist in the EDM scene. Breaking into dubstep as a
+            drag performer meant not everyone understood it at first — and that resistance
+            became the point. Blending in is common in this space; HEXXA never has.
+          </p>
+
+          <p class="reveal mt-5 text-pretty font-sans leading-relaxed text-ash">
+            Creating space and visibility for queer artists in the bass scene is a stated
+            goal, not a side effect. The drive to take over the scene is fuelled by paving
+            the way for the emerging artists coming next.
+          </p>
+
+          <CTAButton href={links.discord} class="mt-9" icon="discord" external>
+            Join {site.fandom}
+          </CTAButton>
+        </div>
+
+        <div class="space-y-10">
+          {
+            bio.quotes.map((quote) => (
+              <PressQuote text={quote.text} source={quote.source} context={quote.context} />
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LIVE ===================== -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-center lg:gap-16">
+        <div>
+          <SectionHeading eyebrow="On stage" title="Every Set A Summoning" />
+
+          <p class="reveal mt-6 text-pretty font-sans leading-relaxed text-ash">
+            The transformation is as intentional as the music: up to two hours from makeup to
+            hair to the carefully chosen outfits that define the stage presence. Then an hour
+            of dancing, hair-whipping and complete destruction.
+          </p>
+
+          <p class="reveal mt-5 text-pretty font-sans leading-relaxed text-ash">
+            Expect heavy dubstep bangers, a splash of experimental tracks and the occasional
+            riddim tune — stacked with jaw-dropping doubles and twisted edits.
+          </p>
+
+          <div class="reveal mt-9 flex flex-wrap gap-3">
+            <CTAButton href={href("/videos")} icon="play">Watch a full set</CTAButton>
+            <CTAButton href={href("/tour")} variant="outline" icon="ticket">
+              Tour dates
+            </CTAButton>
+          </div>
+        </div>
+
+        <div class="reveal border border-bone/10">
+          <BrandImage
+            src={images.live}
+            alt="HEXXA performing live"
+            ratio="3/2"
+            tone="violet"
+            placeholderLabel="Live shot, mid-set with crowd — see ASSETS.md"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

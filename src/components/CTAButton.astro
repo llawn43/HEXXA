@@ -1,0 +1,69 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props {
+  href: string;
+  variant?: "primary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
+  icon?: string;
+  /** Place the icon after the label. Defaults to before. */
+  iconAfter?: boolean;
+  /** Opens in a new tab with the correct rel attributes. */
+  external?: boolean;
+  class?: string;
+  ariaLabel?: string;
+}
+
+const {
+  href,
+  variant = "primary",
+  size = "md",
+  icon,
+  iconAfter = false,
+  external = false,
+  class: className = "",
+  ariaLabel,
+} = Astro.props;
+
+const variants = {
+  // Crimson-on-void fill: the loudest action on any given page.
+  primary:
+    "bg-crimson text-void hover:bg-bone focus-visible:bg-bone border border-crimson hover:border-bone",
+  outline:
+    "border border-bone/35 text-bone hover:border-crimson hover:text-crimson bg-transparent",
+  ghost: "border border-transparent text-bone/75 hover:text-crimson bg-transparent",
+}[variant];
+
+const sizes = {
+  sm: "px-4 py-2 text-[0.66rem] tracking-[0.18em]",
+  md: "px-6 py-3 text-[0.72rem] tracking-[0.2em]",
+  lg: "px-8 py-4 text-[0.8rem] tracking-[0.22em]",
+}[size];
+
+const iconSize = size === "lg" ? 18 : size === "md" ? 16 : 14;
+---
+
+<a
+  href={href}
+  aria-label={ariaLabel}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener noreferrer" : undefined}
+  class:list={[
+    "group inline-flex items-center justify-center gap-2.5 font-sans font-bold uppercase transition-all duration-200",
+    variants,
+    sizes,
+    className,
+  ]}
+>
+  {icon && !iconAfter && <Icon name={icon} size={iconSize} />}
+  <slot />
+  {
+    icon && iconAfter && (
+      <Icon
+        name={icon}
+        size={iconSize}
+        class="transition-transform duration-200 group-hover:translate-x-1"
+      />
+    )
+  }
+</a>

@@ -1,0 +1,392 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Sigil from "../components/Sigil.astro";
+import BrandImage from "../components/BrandImage.astro";
+import CTAButton from "../components/CTAButton.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import ShowRow from "../components/ShowRow.astro";
+import ReleaseCard from "../components/ReleaseCard.astro";
+import EmbedFacade from "../components/EmbedFacade.astro";
+import Marquee from "../components/Marquee.astro";
+import SocialRail from "../components/SocialRail.astro";
+
+import { site } from "../data/site";
+import { bio } from "../data/bio";
+import { releases, featuredRelease, releaseCredit } from "../data/releases";
+import { featuredVideo } from "../data/videos";
+import { upcomingShows } from "../data/shows";
+import { links } from "../data/socials";
+import { images } from "../data/assets";
+import { href } from "../lib/url";
+
+const nextShows = upcomingShows().slice(0, 3);
+const recentReleases = releases.slice(1, 5);
+const totalUpcoming = upcomingShows().length;
+---
+
+<Layout
+  title="HEXXA — The Dubstep Demon"
+  bareTitle
+  description={site.description}
+  includeEvents
+>
+  <!-- ===================== HERO: THE SUMMONING ===================== -->
+  <section class="relative flex min-h-[100svh] items-end overflow-hidden">
+    <!-- Portrait layer. Placeholder until a real hero shot lands. -->
+    <BrandImage
+      src={images.hero}
+      alt="HEXXA in full look"
+      fill
+      tone="split"
+      sigil={false}
+      loading="eager"
+    />
+
+    <!-- Vignette so the display type stays legible over any photo. -->
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-void via-void/70 to-void/35"
+      aria-hidden="true"
+    >
+    </div>
+    <div
+      class="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_120%,rgba(208,17,40,0.28)_0%,transparent_60%)]"
+      aria-hidden="true"
+    >
+    </div>
+
+    <!-- The sigil is drawn on as a summoning the moment the page loads. -->
+    <Sigil
+      size={640}
+      animated
+      spin
+      class="pointer-events-none absolute -right-40 top-1/2 -translate-y-1/2 text-crimson/20 sm:-right-24 lg:right-4 lg:text-crimson/25"
+    />
+
+    <div class="relative mx-auto w-full max-w-7xl px-5 pb-16 pt-32 lg:px-8 lg:pb-24">
+      <p
+        class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.3em] text-crimson animate-flicker"
+      >
+        {site.tagline}
+      </p>
+
+      <h1 class="mt-5 text-[length:var(--text-hero)] leading-[0.82] text-bone">
+        <span class="block">HEXXA</span>
+      </h1>
+
+      <p
+        class="mt-5 max-w-xl text-balance font-display text-2xl leading-tight tracking-wide text-glow-crimson sm:text-3xl lg:text-4xl"
+      >
+        <span class="text-violet-soft">You don't just listen.</span>
+        <span class="block text-bone">You summon her.</span>
+      </p>
+
+      <p class="mt-6 max-w-lg font-sans text-base leading-relaxed text-ash">
+        {bio.oneLiner}
+      </p>
+
+      <div class="mt-9 flex flex-wrap items-center gap-3">
+        <CTAButton href={href("/music")} size="lg" icon="play">Listen</CTAButton>
+        <CTAButton href={href("/tour")} variant="outline" size="lg" icon="ticket">
+          Tour dates
+        </CTAButton>
+      </div>
+
+      <SocialRail class="mt-10" />
+    </div>
+
+    <!-- Scroll hint, doubling as a bass-pulse motif. -->
+    <div
+      class="pointer-events-none absolute bottom-6 left-1/2 hidden -translate-x-1/2 lg:block"
+      aria-hidden="true"
+    >
+      <div class="h-14 w-px bg-gradient-to-b from-transparent via-crimson to-transparent"></div>
+    </div>
+  </section>
+
+  <!-- ===================== PROOF MARQUEE ===================== -->
+  <Marquee items={bio.stages} />
+
+  <!-- ===================== LATEST RELEASE ===================== -->
+  <section class="relative overflow-hidden py-20 lg:py-28">
+    <div
+      class="pointer-events-none absolute -left-32 top-20 h-96 w-96 rounded-full bg-crimson/10 blur-[130px]"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <SectionHeading eyebrow="New music" title="The Latest Curse" />
+
+      <div class="mt-12 grid gap-10 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-16">
+        <div class="reveal">
+          <div class="relative border border-bone/10 glow-crimson">
+            <BrandImage
+              src={featuredRelease.artwork}
+              alt={`${featuredRelease.title} — cover art`}
+              ratio="1/1"
+              tone="crimson"
+              loading="eager"
+              placeholderLabel={`${featuredRelease.title} — artwork`}
+            />
+            <span
+              class="absolute left-0 top-0 bleed-gradient px-4 py-2 font-sans text-[0.62rem] font-bold uppercase tracking-[0.2em] text-bone"
+            >
+              Out now
+            </span>
+          </div>
+        </div>
+
+        <div class="reveal flex flex-col justify-center">
+          <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.24em] text-crimson">
+            {featuredRelease.type} &middot; {featuredRelease.year}
+          </span>
+
+          <h3 class="mt-4 text-[length:var(--text-section)] text-bone">
+            {featuredRelease.title}
+          </h3>
+
+          <p class="mt-3 font-sans text-lg text-ash">{releaseCredit(featuredRelease)}</p>
+
+          <p class="mt-6 max-w-xl text-pretty font-sans leading-relaxed text-bone/80">
+            Bone-crushing dubstep with haunting melodies and dark cinematic flair. Every drop
+            a curse, every transition a transformation.
+          </p>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <CTAButton href={links.spotifyArtist} icon="spotify" external>Stream</CTAButton>
+            <CTAButton href={links.beatportArtist} variant="outline" icon="beatport" external>
+              Buy on Beatport
+            </CTAButton>
+          </div>
+
+          <div class="mt-10 border-t border-bone/10 pt-8">
+            <p class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.24em] text-ash">
+              More from the grimoire
+            </p>
+
+            <div class="mt-6 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
+              {
+                recentReleases.map((release, index) => (
+                  <ReleaseCard
+                    release={release}
+                    tone={index % 2 === 0 ? "crimson" : "violet"}
+                  />
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="mt-10">
+            <CTAButton href={href("/music")} variant="ghost" icon="arrow" iconAfter>
+              Full discography
+            </CTAButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TOUR ===================== -->
+  <section class="relative border-y border-bone/10 bg-ink py-20 lg:py-28">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <SectionHeading eyebrow="Tour dates" title="Upcoming Rituals" />
+
+        <p class="reveal font-sans text-sm text-ash">
+          {totalUpcoming} date{totalUpcoming === 1 ? "" : "s"} confirmed
+        </p>
+      </div>
+
+      {
+        nextShows.length > 0 ? (
+          <>
+            <ul class="mt-10 border-t border-bone/10">
+              {nextShows.map((show, index) => (
+                <ShowRow show={show} next={index === 0} />
+              ))}
+            </ul>
+
+            <div class="mt-10 flex flex-wrap gap-3">
+              <CTAButton href={href("/tour")} icon="arrow" iconAfter>All tour dates</CTAButton>
+              <CTAButton href={links.bandsintown} variant="outline" external>
+                Follow on Bandsintown
+              </CTAButton>
+            </div>
+          </>
+        ) : (
+          <div class="reveal mt-10 border border-bone/10 bg-void/40 px-6 py-14 text-center">
+            <Sigil size={72} class="mx-auto text-crimson/40" spin />
+            <p class="mt-6 font-display text-2xl text-bone">The circle is quiet</p>
+            <p class="mt-2 font-sans text-sm text-ash">
+              No dates announced right now. Follow on Bandsintown to be summoned first.
+            </p>
+            <CTAButton href={links.bandsintown} class="mt-7" external>
+              Follow on Bandsintown
+            </CTAButton>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ===================== FEATURED SET ===================== -->
+  <section class="relative py-20 lg:py-28">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <SectionHeading eyebrow="Live sets" title="Witness The Carnage" />
+
+      <div class="mt-12 grid gap-10 lg:grid-cols-[1.6fr_1fr] lg:gap-14">
+        <EmbedFacade
+          provider="youtube"
+          embedId={featuredVideo.youtubeId}
+          poster={featuredVideo.poster}
+          title={`HEXXA — ${featuredVideo.title}`}
+          fallbackHref="https://www.youtube.com/@hexxaofficial"
+          class="reveal"
+        />
+
+        <div class="reveal flex flex-col justify-center">
+          <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.24em] text-crimson">
+            {featuredVideo.event} &middot; {featuredVideo.year}
+          </span>
+
+          <h3 class="mt-4 font-display text-3xl leading-tight text-bone sm:text-4xl">
+            {featuredVideo.title}
+          </h3>
+
+          {
+            featuredVideo.description && (
+              <p class="mt-5 text-pretty font-sans leading-relaxed text-ash">
+                {featuredVideo.description}
+              </p>
+            )
+          }
+
+          <p class="mt-6 font-sans text-sm leading-relaxed text-bone/70">
+            Jaw-dropping doubles, twisted edits and just enough riddim and experimental chaos
+            to keep crowds gasping.
+          </p>
+
+          <CTAButton
+            href={href("/videos")}
+            variant="ghost"
+            icon="arrow"
+            iconAfter
+            class="mt-8 self-start"
+          >
+            All live sets
+          </CTAButton>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MERCH + COMMUNITY ===================== -->
+  <section class="relative border-t border-bone/10 py-20 lg:py-28">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-8 lg:grid-cols-2">
+        <!-- Merch -->
+        <article
+          class="reveal group relative flex min-h-[26rem] flex-col justify-end overflow-hidden border border-bone/10"
+        >
+          <BrandImage
+            src={images.merch}
+            alt="THE HEXXORCIST merch collection"
+            fill
+            tone="crimson"
+            placeholderLabel="Merch lifestyle shot — see ASSETS.md"
+            class="transition-transform duration-700 group-hover:scale-105"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-void via-void/70 to-transparent"
+            aria-hidden="true"
+          >
+          </div>
+
+          <div class="relative p-8">
+            <span
+              class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.24em] text-crimson"
+            >
+              Merch
+            </span>
+            <h3 class="mt-3 font-display text-3xl leading-tight text-bone sm:text-4xl">
+              The Hexxorcist Collection
+            </h3>
+            <p class="mt-3 max-w-sm font-sans text-sm leading-relaxed text-ash">
+              Wear the curse. Limited runs, built for the pit.
+            </p>
+            <CTAButton href={links.merch} class="mt-6" icon="arrow" iconAfter external>
+              Shop the collection
+            </CTAButton>
+          </div>
+        </article>
+
+        <!-- Community -->
+        <article
+          class="reveal relative flex min-h-[26rem] flex-col justify-end overflow-hidden border border-bone/10 bg-ink"
+        >
+          <Sigil
+            size={420}
+            spin
+            class="pointer-events-none absolute -right-20 -top-16 text-violet/[0.12]"
+          />
+          <div
+            class="pointer-events-none absolute inset-0 bg-[radial-gradient(100%_80%_at_20%_100%,rgba(160,32,240,0.22)_0%,transparent_65%)]"
+            aria-hidden="true"
+          >
+          </div>
+
+          <div class="relative p-8">
+            <span
+              class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.24em] text-violet-soft"
+            >
+              Community
+            </span>
+            <h3 class="mt-3 font-display text-3xl leading-tight text-bone sm:text-4xl">
+              Join {site.fandom}
+            </h3>
+            <p class="mt-3 max-w-sm font-sans text-sm leading-relaxed text-ash">
+              An unholy sanctuary for bassheads, HEXXA fans and EDM demons alike. Dubstep is
+              sacred, chaos is encouraged, bass is a lifestyle.
+            </p>
+            <CTAButton
+              href={links.discord}
+              class="mt-6 border-violet-soft bg-violet-soft text-void hover:border-bone hover:bg-bone"
+              icon="discord"
+              external
+            >
+              Enter the Discord
+            </CTAButton>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BOOKING BAND ===================== -->
+  <section class="relative overflow-hidden border-t border-bone/10 bg-ink py-16 lg:py-20">
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_100%_at_50%_0%,rgba(208,17,40,0.16)_0%,transparent_70%)]"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 lg:flex-row lg:items-center lg:px-8"
+    >
+      <div class="reveal">
+        <h2 class="text-[length:var(--text-section)] text-bone">Summon Her</h2>
+        <p class="mt-3 max-w-xl font-sans leading-relaxed text-ash">
+          Booking enquiries, festival offers and press requests. Full EPK, bios and technical
+          details are ready to go.
+        </p>
+      </div>
+
+      <div class="reveal flex flex-wrap gap-3">
+        <CTAButton href={href("/booking")} size="lg" icon="mail">Book HEXXA</CTAButton>
+        <CTAButton href={href("/press")} variant="outline" size="lg" icon="download">
+          Press kit
+        </CTAButton>
+      </div>
+    </div>
+  </section>
+</Layout>

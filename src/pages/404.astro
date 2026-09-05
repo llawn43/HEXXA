@@ -1,0 +1,61 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Sigil from "../components/Sigil.astro";
+import CTAButton from "../components/CTAButton.astro";
+import { nav } from "../data/nav";
+import { href } from "../lib/url";
+---
+
+<Layout
+  title="Page Not Found"
+  description="This page has been banished. Find your way back to HEXXA."
+  noindex
+>
+  <section class="relative flex min-h-[80svh] items-center overflow-hidden py-24">
+    <Sigil
+      size={620}
+      animated
+      spin
+      class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-crimson/[0.09]"
+    />
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_50%,rgba(208,17,40,0.14)_0%,transparent_70%)]"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="relative mx-auto max-w-3xl px-5 text-center lg:px-8">
+      <p class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.3em] text-crimson">
+        Error 404
+      </p>
+
+      <h1 class="mt-5 text-[length:var(--text-display)] text-bone">Banished</h1>
+
+      <p class="mx-auto mt-6 max-w-md text-pretty font-sans leading-relaxed text-ash">
+        This page has been cast out. The summoning circle is elsewhere.
+      </p>
+
+      <div class="mt-10 flex flex-wrap justify-center gap-3">
+        <CTAButton href={href("/")} icon="arrow" iconAfter>Back to the ritual</CTAButton>
+        <CTAButton href={href("/tour")} variant="outline" icon="ticket">Tour dates</CTAButton>
+      </div>
+
+      <nav aria-label="Site" class="mt-14">
+        <ul class="flex flex-wrap justify-center gap-x-6 gap-y-3">
+          {
+            nav.map((item) => (
+              <li>
+                <a
+                  href={href(item.path)}
+                  class="link-wipe font-sans text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-bone/70 transition-colors hover:text-crimson"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </section>
+</Layout>

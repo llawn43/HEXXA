@@ -1,0 +1,160 @@
+---
+/**
+ * Click-to-play embed.
+ *
+ * Renders a lightweight poster and only injects the real iframe once the
+ * visitor asks for it. A page can therefore carry half a dozen sets and a
+ * Spotify player without paying for a single third-party frame on load.
+ *
+ * When no embed id exists yet, this degrades to a plain outbound link rather
+ * than rendering a broken player.
+ */
+import BrandImage from "./BrandImage.astro";
+import Icon from "./Icon.astro";
+
+interface Props {
+  provider: "youtube" | "spotify";
+  /** YouTube video id, or a Spotify embed path like "artist/5YaM...". */
+  embedId: string | null;
+  title: string;
+  /** Where to send visitors when `embedId` is null. */
+  fallbackHref: string;
+  poster?: string | null;
+  ratio?: string;
+  class?: string;
+  tone?: "crimson" | "violet" | "split";
+}
+
+const {
+  provider,
+  embedId,
+  title,
+  fallbackHref,
+  poster = null,
+  ratio = "16/9",
+  class: className = "",
+  tone = "crimson",
+} = Astro.props;
+
+const src =
+  provider === "youtube"
+    ? // `autoplay=1` is honoured here because playback is user-initiated.
+      `https://www.youtube-nocookie.com/embed/${embedId}?autoplay=1&rel=0&modestbranding=1`
+    : `https://open.spotify.com/embed/${embedId}?utm_source=generator&theme=0`;
+
+// Spotify players are chrome-only widgets; they need no poster or autoplay.
+const isSpotify = provider === "spotify";
+
+// YouTube's own thumbnail is one cheap image request, versus a whole iframe.
+const posterSrc =
+  poster ??
+  (provider === "youtube" && embedId ? `https://i.ytimg.com/vi/${embedId}/hqdefault.jpg` : null);
+---
+
+{
+  isSpotify && embedId ? (
+    <div class:list={["overflow-hidden border border-bone/10 bg-ink", className]}>
+      <iframe
+        src={src}
+        title={title}
+        width="100%"
+        height="352"
+        loading="lazy"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        class="block w-full border-0"
+      />
+    </div>
+  ) : embedId ? (
+    <div
+      class:list={["group relative overflow-hidden border border-bone/10 bg-ink", className]}
+      data-embed
+      data-embed-src={src}
+      data-embed-title={title}
+      style={`aspect-ratio:${ratio}`}
+    >
+      {posterSrc ? (
+        <img
+          src={posterSrc}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-105"
+        />
+      ) : (
+        <BrandImage src={null} alt="" fill tone={tone} sigil={false} />
+      )}
+
+      <span
+        class="absolute inset-0 bg-gradient-to-t from-void/80 via-void/20 to-transparent"
+        aria-hidden="true"></span>
+
+      <button
+        type="button"
+        data-embed-play
+        class="absolute inset-0 flex flex-col items-center justify-center gap-4"
+      >
+        <span
+          class="flex h-20 w-20 items-center justify-center rounded-full border border-crimson/60 bg-void/70 text-crimson transition-all duration-300 group-hover:bg-crimson group-hover:text-void group-hover:glow-crimson"
+        >
+          <Icon name="play" size={26} class="ml-1" />
+        </span>
+        <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.22em] text-bone">
+          Play
+        </span>
+        <span class="sr-only">{title}</span>
+      </button>
+    </div>
+  ) : (
+    <a
+      href={fallbackHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      class:list={[
+        "group relative flex items-center justify-center overflow-hidden border border-bone/10 bg-ink",
+        className,
+      ]}
+      style={`aspect-ratio:${ratio}`}
+    >
+      <BrandImage src={null} alt="" fill tone={tone} sigil={false} />
+      <span
+        class="absolute inset-0 bg-gradient-to-t from-void/75 via-void/15 to-transparent"
+        aria-hidden="true"></span>
+
+      <span class="relative z-10 flex flex-col items-center gap-4 px-6 text-center">
+        <span
+          class="flex h-20 w-20 items-center justify-center rounded-full border border-crimson/60 bg-void/70 text-crimson transition-all duration-300 group-hover:bg-crimson group-hover:text-void"
+        >
+          <Icon name="play" size={26} class="ml-1" />
+        </span>
+        <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.22em] text-bone">
+          Watch on {provider === "youtube" ? "YouTube" : "Spotify"}
+        </span>
+        <span class="font-sans text-xs text-ash">{title}</span>
+      </span>
+    </a>
+  )
+}
+
+<script>
+  // One delegated listener covers every facade on the page.
+  document.addEventListener("click", (event) => {
+    const trigger = (event.target as HTMLElement).closest<HTMLElement>("[data-embed-play]");
+    if (!trigger) return;
+
+    const host = trigger.closest<HTMLElement>("[data-embed]");
+    const src = host?.dataset.embedSrc;
+    if (!host || !src) return;
+
+    const frame = document.createElement("iframe");
+    frame.src = src;
+    frame.title = host.dataset.embedTitle ?? "Video player";
+    frame.loading = "eager";
+    frame.allow =
+      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    frame.allowFullscreen = true;
+    frame.className = "absolute inset-0 h-full w-full border-0";
+
+    host.replaceChildren(frame);
+    frame.focus();
+  });
+</script>

@@ -1,0 +1,183 @@
+---
+import "../styles/global.css";
+
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { site } from "../data/site";
+import { bio } from "../data/bio";
+import { socials, links } from "../data/socials";
+import { upcomingShows } from "../data/shows";
+import { images, asset } from "../data/assets";
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Suppresses the " | HEXXA" suffix, for the homepage. */
+  bareTitle?: boolean;
+  /** Page-specific share image, absolute or site-relative. */
+  ogImage?: string | null;
+  /** Adds Event structured data. Set on the homepage and /tour only. */
+  includeEvents?: boolean;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  bareTitle = false,
+  ogImage,
+  includeEvents = false,
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = bareTitle ? title : `${title} | HEXXA`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const shareImage = new URL(
+  ogImage ?? images.ogImage ?? asset("/og-default.png"),
+  Astro.site,
+).href;
+
+// Structured data. MusicGroup on every page so search engines consistently
+// resolve the artist entity; Event only where tour dates are actually shown.
+const musicGroup = {
+  "@context": "https://schema.org",
+  "@type": "MusicGroup",
+  name: site.name,
+  alternateName: "HEXXA Official",
+  description: bio.long,
+  genre: ["Dubstep", "Bass Music", "Riddim"],
+  url: canonical,
+  image: shareImage,
+  foundingLocation: {
+    "@type": "Place",
+    name: "Philadelphia, Pennsylvania, United States",
+  },
+  sameAs: socials.map((social) => social.href),
+};
+
+const events = includeEvents
+  ? upcomingShows().map((show) => ({
+      "@context": "https://schema.org",
+      "@type": "MusicEvent",
+      name: show.event ? `${show.event} — HEXXA` : `HEXXA in ${show.city}`,
+      startDate: show.date,
+      ...(show.runsThrough ? { endDate: show.runsThrough } : {}),
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      url: show.tickets ?? links.bandsintown,
+      performer: { "@type": "MusicGroup", name: site.name },
+      location: {
+        "@type": "Place",
+        name: show.venue,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: show.city,
+          addressRegion: show.region,
+          addressCountry: show.country,
+        },
+      },
+    }))
+  : [];
+---
+
+<!doctype html>
+<html lang="en" class="scroll-pt-24">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <link rel="icon" type="image/svg+xml" href={asset("/favicon.svg")} />
+    <link rel="apple-touch-icon" href={asset("/favicon.svg")} />
+    <meta name="theme-color" content={site.themeColor} />
+    <meta name="color-scheme" content="dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={shareImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="HEXXA — the dubstep demon" />
+    <meta property="og:locale" content={site.locale} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={shareImage} />
+    <meta name="twitter:site" content="@hexxaofficial" />
+    <meta name="twitter:creator" content="@hexxaofficial" />
+
+    <link rel="sitemap" href={asset("/sitemap-index.xml")} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(musicGroup)} is:inline />
+    {
+      events.map((event) => (
+        <script type="application/ld+json" set:html={JSON.stringify(event)} is:inline />
+      ))
+    }
+  </head>
+
+  <body class="min-h-screen antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:bg-crimson focus:px-4 focus:py-2 focus:font-sans focus:text-sm focus:font-bold focus:uppercase focus:tracking-widest focus:text-void"
+    >
+      Skip to content
+    </a>
+
+    <Header />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <!-- Full-page texture. Fixed and non-interactive, so it tints everything
+         without ever intercepting a click. -->
+    <div class="grain-overlay" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <script>
+      // Scroll reveals. Elements start hidden via the `.reveal` utility, so if
+      // this script fails the fallback below still makes them visible.
+      const revealables = document.querySelectorAll<HTMLElement>(".reveal");
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        revealables.forEach((element) => element.classList.add("is-revealed"));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add("is-revealed");
+              observer.unobserve(entry.target);
+            });
+          },
+          { rootMargin: "0px 0px -12% 0px", threshold: 0.05 },
+        );
+
+        revealables.forEach((element) => observer.observe(element));
+      }
+    </script>
+
+    <noscript>
+      <style>
+        .reveal {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      </style>
+    </noscript>
+  </body>
+</html>

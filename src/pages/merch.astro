@@ -1,0 +1,143 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import BrandImage from "../components/BrandImage.astro";
+import CTAButton from "../components/CTAButton.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import Sigil from "../components/Sigil.astro";
+
+import { links } from "../data/socials";
+import { site } from "../data/site";
+import { images } from "../data/assets";
+
+// Placeholder product slots. The store itself lives off-site, so these are
+// teasers that link straight through rather than a cart implementation.
+const drops = [
+  { name: "Hexxorcist Tee", detail: "Front and back print", tone: "crimson" as const },
+  { name: "Unholy Reign Hoodie", detail: "Heavyweight, oversized", tone: "violet" as const },
+  { name: "Sigil Cap", detail: "Embroidered mark", tone: "crimson" as const },
+];
+---
+
+<Layout
+  title="Merch"
+  description="THE HEXXORCIST COLLECTION — official HEXXA merch. Limited runs, built for the pit."
+>
+  <PageHeader
+    eyebrow="Merch"
+    title="The Hexxorcist Collection"
+    lede="Wear the curse. Limited runs, built for the pit and printed to survive it."
+  >
+    <div class="mt-8">
+      <CTAButton href={links.merch} size="lg" icon="arrow" iconAfter external>
+        Shop the collection
+      </CTAButton>
+    </div>
+  </PageHeader>
+
+  <!-- ===================== HERO SHOT ===================== -->
+  <section class="relative border-b border-bone/10">
+    <div class="relative min-h-[24rem] lg:min-h-[32rem]">
+      <BrandImage
+        src={images.merch}
+        alt="THE HEXXORCIST COLLECTION"
+        fill
+        tone="crimson"
+        sigil={false}
+        loading="eager"
+      />
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-void via-void/60 to-transparent"
+        aria-hidden="true"
+      >
+      </div>
+
+      <Sigil
+        size={340}
+        spin
+        class="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-bone/10 lg:right-16"
+      />
+
+      <div class="relative flex min-h-[24rem] items-end lg:min-h-[32rem]">
+        <div class="mx-auto w-full max-w-7xl px-5 pb-10 lg:px-8 lg:pb-14">
+          <p class="max-w-xl font-display text-2xl leading-tight text-bone sm:text-3xl">
+            Dubstep is sacred. Chaos is encouraged. Bass is a lifestyle.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DROPS ===================== -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <SectionHeading eyebrow="In the collection" title="Relics" />
+
+      <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          drops.map((drop) => (
+            <a
+              href={links.merch}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="reveal group flex flex-col"
+            >
+              <div class="overflow-hidden border border-bone/10 transition-colors group-hover:border-crimson/60">
+                <BrandImage
+                  src={null}
+                  alt={drop.name}
+                  ratio="1/1"
+                  tone={drop.tone}
+                  placeholderLabel={`${drop.name} — product shot`}
+                  class="transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+
+              <h3 class="mt-4 font-display text-xl tracking-wide text-bone">{drop.name}</h3>
+              <p class="mt-1 font-sans text-sm text-ash">{drop.detail}</p>
+              <span class="mt-3 font-sans text-[0.62rem] font-bold uppercase tracking-[0.18em] text-crimson">
+                View in store
+              </span>
+            </a>
+          ))
+        }
+      </div>
+
+      <p class="reveal mt-10 max-w-2xl font-sans text-sm leading-relaxed text-ash">
+        Sizes, pricing and shipping are handled in the official store. Drops are limited and
+        do not usually return.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== COMMUNITY ===================== -->
+  <section class="relative overflow-hidden border-t border-bone/10 bg-ink py-16 lg:py-20">
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_100%_at_50%_0%,rgba(160,32,240,0.16)_0%,transparent_70%)]"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div
+      class="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 lg:flex-row lg:items-center lg:px-8"
+    >
+      <div class="reveal">
+        <h2 class="text-[length:var(--text-section)] text-bone">Join {site.fandom}</h2>
+        <p class="mt-3 max-w-xl font-sans leading-relaxed text-ash">
+          Drop announcements, early access and an unholy sanctuary for bassheads. Free to
+          join.
+        </p>
+      </div>
+
+      <CTAButton
+        href={links.discord}
+        size="lg"
+        icon="discord"
+        external
+        class="reveal border-violet-soft bg-violet-soft text-void hover:border-bone hover:bg-bone"
+      >
+        Enter the Discord
+      </CTAButton>
+    </div>
+  </section>
+</Layout>

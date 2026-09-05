@@ -1,0 +1,98 @@
+---
+/**
+ * The HEXXA sigil: a ritual circle enclosing a hexagon (HEX) and an inscribed
+ * hexagram, with the doubled XX struck through the centre.
+ *
+ * Original vector authored here rather than imported, so the mark scales
+ * cleanly, inherits `currentColor`, and can self-draw as a summoning.
+ */
+interface Props {
+  /** Rendered edge length in px. */
+  size?: number;
+  class?: string;
+  /** Stroke the sigil on in sequence. Respects prefers-reduced-motion. */
+  animated?: boolean;
+  /** Slowly rotate the outer ring and tick marks. */
+  spin?: boolean;
+  /** Accessible name. Omit for purely decorative usage. */
+  title?: string;
+}
+
+const {
+  size = 96,
+  class: className = "",
+  animated = false,
+  spin = false,
+  title,
+} = Astro.props;
+
+// Ring ticks: 24 marks around the circle, evenly spaced.
+const ticks = Array.from({ length: 24 }, (_, i) => i * 15);
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 100 100"
+  class={className}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.1"
+  vector-effect="non-scaling-stroke"
+  role={title ? "img" : "presentation"}
+  aria-hidden={title ? undefined : "true"}
+>
+  {title && <title>{title}</title>}
+
+  <!-- Outer ritual circle + tick ring -->
+  <g class:list={[spin && "animate-sigil-spin"]} style="transform-origin:50% 50%">
+    <circle cx="50" cy="50" r="48" opacity="0.5" />
+    {
+      ticks.map((deg) => (
+        <line
+          x1="50"
+          y1="2.5"
+          x2="50"
+          y2="6.5"
+          opacity="0.65"
+          transform={`rotate(${deg} 50 50)`}
+        />
+      ))
+    }
+  </g>
+
+  <circle cx="50" cy="50" r="44.5" opacity="0.28" stroke-dasharray="1 3" />
+
+  <!-- HEX: the hexagon -->
+  <polygon
+    points="50,6 88.1,28 88.1,72 50,94 11.9,72 11.9,28"
+    opacity="0.75"
+    class:list={[animated && "sigil-stroke"]}
+    style={animated ? "animation-delay:.1s" : undefined}
+  />
+
+  <!-- The inscribed hexagram, drawn as two interlocking triangles -->
+  <polygon
+    points="50,16 79.44,67 20.56,67"
+    class:list={[animated && "sigil-stroke"]}
+    style={animated ? "animation-delay:.45s" : undefined}
+  />
+  <polygon
+    points="50,84 79.44,33 20.56,33"
+    class:list={[animated && "sigil-stroke"]}
+    style={animated ? "animation-delay:.75s" : undefined}
+  />
+
+  <!-- The doubled XX, struck through the centre -->
+  <g
+    stroke-width="2.4"
+    stroke-linecap="square"
+    class:list={[animated && "sigil-stroke"]}
+    style={animated ? "animation-delay:1.15s" : undefined}
+  >
+    <line x1="33" y1="42" x2="47" y2="58" />
+    <line x1="47" y1="42" x2="33" y2="58" />
+    <line x1="53" y1="42" x2="67" y2="58" />
+    <line x1="67" y1="42" x2="53" y2="58" />
+  </g>
+</svg>

@@ -1,0 +1,344 @@
+@import "tailwindcss";
+
+/* Self-hosted fonts (no CDN). Anton = display, Archivo variable = UI. */
+@import "@fontsource/anton/latin-400.css";
+@import "@fontsource-variable/archivo/wght.css";
+
+/* ---------------------------------------------------------------------------
+   HEXXA design tokens
+
+   The palette holds two truths at once: the gore (void + crimson) and the
+   glamour (violet). HEXXA is a drag artist fused with heavy dubstep, so a
+   flat black-and-red scheme would only tell half her story.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-void: #07060a;
+  --color-ink: #0e0c12;
+  --color-surface: #15121b;
+  --color-surface-2: #1e1926;
+
+  --color-crimson: #ff2247;
+  --color-crimson-deep: #d01128;
+  --color-crimson-dark: #7a0a19;
+
+  --color-violet: #a020f0;
+  --color-violet-soft: #c77dff;
+  --color-violet-dark: #4a0f6e;
+
+  --color-bone: #ede7de;
+  --color-ash: #a9a2ad;
+
+  --font-display: "Anton", "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-sans: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+  --text-hero: clamp(3.25rem, 13vw, 12rem);
+  --text-display: clamp(2.25rem, 7vw, 5.5rem);
+  --text-section: clamp(1.75rem, 4.5vw, 3.25rem);
+
+  --ease-ritual: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 0.88;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  /* Crimson focus ring is the brand's own accent, kept at AA contrast. */
+  :focus-visible {
+    outline: 2px solid var(--color-crimson);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-crimson-deep);
+    color: var(--color-bone);
+  }
+
+  /* Tame the default Firefox/Chrome scrollbar to match the void. */
+  @supports (scrollbar-color: red blue) {
+    html {
+      scrollbar-color: var(--color-crimson-dark) var(--color-void);
+      scrollbar-width: thin;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Texture: grain, scanlines, glow, drip
+--------------------------------------------------------------------------- */
+
+/* Film grain via an inline SVG fractal noise turbulence. Fixed-position and
+   pointer-events-none so it sits over the whole page without intercepting
+   clicks. */
+@utility grain {
+  position: relative;
+}
+
+@utility grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@utility scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    rgba(0, 0, 0, 0.28) 2px 3px
+  );
+}
+
+/* Candle-glow bloom behind hero art and section anchors. */
+@utility glow-crimson {
+  box-shadow:
+    0 0 60px -12px color-mix(in oklab, var(--color-crimson) 55%, transparent),
+    0 0 140px -40px color-mix(in oklab, var(--color-crimson) 40%, transparent);
+}
+
+@utility glow-violet {
+  box-shadow:
+    0 0 60px -12px color-mix(in oklab, var(--color-violet) 55%, transparent),
+    0 0 140px -40px color-mix(in oklab, var(--color-violet) 45%, transparent);
+}
+
+@utility text-glow-crimson {
+  text-shadow:
+    0 0 18px color-mix(in oklab, var(--color-crimson) 60%, transparent),
+    0 0 48px color-mix(in oklab, var(--color-crimson) 35%, transparent);
+}
+
+/* The glamour/gore gradient: crimson bleeding into violet. */
+@utility bleed-gradient {
+  background-image: linear-gradient(
+    115deg,
+    var(--color-crimson-deep) 0%,
+    var(--color-crimson) 38%,
+    var(--color-violet) 100%
+  );
+}
+
+@utility text-bleed {
+  background-image: linear-gradient(
+    115deg,
+    var(--color-bone) 0%,
+    var(--color-crimson) 52%,
+    var(--color-violet-soft) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Duotone treatment so real press photos inherit the palette on drop-in. */
+@utility duotone {
+  filter: grayscale(1) contrast(1.15) brightness(0.85);
+  mix-blend-mode: luminosity;
+}
+
+/* Torn/dripped bottom edge for section breaks. */
+@utility drip-edge {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='40' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M0 0h1200v22c-40 0-40 12-80 12s-40-14-80-14-40 10-80 10-40-12-80-12-40 14-80 14-40-10-80-10-40 12-80 12-40-14-80-14-40 10-80 10-40-12-80-12-40 14-80 14-40-10-80-10-40 12-80 12-40-14-80-14z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='40' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M0 0h1200v22c-40 0-40 12-80 12s-40-14-80-14-40 10-80 10-40-12-80-12-40 14-80 14-40-10-80-10-40 12-80 12-40-14-80-14-40 10-80 10-40-12-80-12-40 14-80 14-40-10-80-10-40 12-80 12-40-14-80-14z'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+@utility hairline {
+  border-color: color-mix(in oklab, var(--color-bone) 14%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Motion. Every animation below is disabled wholesale by the
+   prefers-reduced-motion block at the end of this file.
+--------------------------------------------------------------------------- */
+
+@keyframes sigil-draw {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sigil-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  41% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 0.35;
+  }
+  43% {
+    opacity: 1;
+  }
+  61% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.55;
+  }
+  63% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-bass {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.9;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-flicker {
+  animation: flicker 6s steps(1, end) infinite;
+}
+
+@utility animate-pulse-bass {
+  animation: pulse-bass 3.4s var(--ease-ritual) infinite;
+}
+
+@utility animate-sigil-spin {
+  animation: sigil-spin 48s linear infinite;
+}
+
+@utility animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+
+/* Sigil strokes self-draw once, as a summoning. */
+@utility sigil-stroke {
+  stroke-dasharray: 1000;
+  animation: sigil-draw 2.6s var(--ease-ritual) forwards;
+}
+
+/* Scroll-driven reveal. JS adds .is-revealed via IntersectionObserver; the
+   `no-js` fallback in Layout.astro makes content visible if JS never runs. */
+@utility reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s var(--ease-ritual),
+    transform 0.7s var(--ease-ritual);
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Chromatic-aberration glitch on hover, built from layered text shadows. */
+@utility glitch-hover {
+  transition: text-shadow 0.18s ease-out, transform 0.18s ease-out;
+
+  &:hover {
+    text-shadow:
+      -2px 0 0 var(--color-crimson),
+      2px 0 0 var(--color-violet);
+    transform: translateX(1px);
+  }
+}
+
+/* Animated underline that wipes in from the left. */
+@utility link-wipe {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    height: 1px;
+    width: 100%;
+    background-color: var(--color-crimson);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--ease-ritual);
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .sigil-stroke {
+    stroke-dashoffset: 0 !important;
+  }
+}

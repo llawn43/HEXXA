@@ -1,0 +1,75 @@
+---
+import Icon from "./Icon.astro";
+
+/**
+ * A block of press copy with a one-click copy button, so journalists and
+ * promoters can lift a bio without selecting text by hand.
+ */
+interface Props {
+  label: string;
+  text: string;
+  /** Shown next to the label, e.g. a word count. */
+  meta?: string;
+}
+
+const { label, text, meta } = Astro.props;
+const words = text.trim().split(/\s+/).length;
+---
+
+<div class="reveal border border-bone/10 bg-void/40">
+  <div class="flex items-center justify-between gap-4 border-b border-bone/10 px-5 py-3.5">
+    <div class="flex items-baseline gap-3">
+      <h3 class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.22em] text-crimson">
+        {label}
+      </h3>
+      <span class="font-sans text-[0.62rem] uppercase tracking-[0.16em] text-ash">
+        {meta ?? `${words} words`}
+      </span>
+    </div>
+
+    <button
+      type="button"
+      data-copy
+      data-copy-text={text}
+      class="inline-flex shrink-0 items-center gap-2 border border-bone/20 px-3 py-1.5 font-sans text-[0.62rem] font-bold uppercase tracking-[0.16em] text-bone transition-colors hover:border-crimson hover:bg-crimson hover:text-void"
+    >
+      <Icon name="copy" size={13} />
+      <span data-copy-label>Copy</span>
+      <span class="sr-only">{label}</span>
+    </button>
+  </div>
+
+  <p class="px-5 py-5 text-pretty font-sans text-sm leading-relaxed text-bone/85">{text}</p>
+</div>
+
+<script>
+  // One delegated listener handles every copy block on the page.
+  document.addEventListener("click", async (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLElement>("[data-copy]");
+    const text = button?.dataset.copyText;
+    if (!button || !text) return;
+
+    const label = button.querySelector<HTMLElement>("[data-copy-label]");
+    const original = label?.textContent ?? "Copy";
+
+    try {
+      await navigator.clipboard.writeText(text);
+      if (label) label.textContent = "Copied";
+    } catch {
+      // Clipboard access can be blocked; tell the visitor rather than fail silently.
+      if (label) label.textContent = "Press Ctrl+C";
+      const range = document.createRange();
+      const paragraph = button.closest("div")?.parentElement?.querySelector("p");
+      if (paragraph) {
+        range.selectNodeContents(paragraph);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }
+
+    window.setTimeout(() => {
+      if (label) label.textContent = original;
+    }, 2000);
+  });
+</script>

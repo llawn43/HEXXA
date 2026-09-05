@@ -1,0 +1,94 @@
+﻿---
+import Icon from "./Icon.astro";
+import { formatShowDate, formatShowLocation, type Show } from "../data/shows";
+import { links } from "../data/socials";
+
+interface Props {
+  show: Show;
+  /** Highlights the next show up. */
+  next?: boolean;
+  /** h2 when the list is the page's main content, h3 inside a section. */
+  headingLevel?: "h2" | "h3";
+}
+
+const { show, next = false, headingLevel: Heading = "h3" } = Astro.props;
+
+const ticketHref = show.tickets ?? links.bandsintown;
+const ticketLabel = show.soldOut ? "Sold out" : show.tickets ? "Tickets" : "Get tickets";
+
+// A show is billed either under a festival/event name or simply as HEXXA.
+const billing = show.event ?? "HEXXA";
+const support = show.lineup?.length ? `with ${show.lineup.join(", ")}` : undefined;
+
+const dateTime = show.runsThrough ? `${show.date}/${show.runsThrough}` : show.date;
+---
+
+<li
+  class:list={[
+    "reveal group relative border-b border-bone/10 transition-colors",
+    next ? "bg-crimson/[0.04]" : "hover:bg-bone/[0.02]",
+  ]}
+>
+  <div
+    class="grid grid-cols-1 items-center gap-x-6 gap-y-3 px-1 py-6 sm:grid-cols-[8.5rem_1fr_auto] sm:py-7"
+  >
+    <div class="flex items-baseline gap-3 sm:block">
+      <time
+        datetime={dateTime}
+        class="block font-display text-2xl leading-none text-crimson sm:text-[1.75rem]"
+      >
+        {formatShowDate(show)}
+      </time>
+      {
+        show.time && !show.runsThrough && (
+          <span class="font-sans text-xs text-ash sm:mt-1.5 sm:block">{show.time}</span>
+        )
+      }
+      {
+        next && (
+          <span class="font-sans text-[0.6rem] font-bold uppercase tracking-[0.2em] text-violet-soft sm:mt-2 sm:block">
+            Next up
+          </span>
+        )
+      }
+    </div>
+
+    <div class="min-w-0">
+      <Heading class="truncate font-display text-xl tracking-wide text-bone sm:text-2xl">
+        {billing}
+      </Heading>
+      <p class="mt-1 flex flex-wrap items-center gap-x-2 font-sans text-sm text-ash">
+        <span class="inline-flex items-center gap-1.5 text-bone/85">
+          <Icon name="pin" size={14} class="shrink-0 text-crimson" />
+          {formatShowLocation(show)}
+        </span>
+        <span aria-hidden="true" class="text-ash">/</span>
+        <span class="min-w-0 truncate">{show.venue}</span>
+      </p>
+      {support && <p class="mt-1 font-sans text-xs text-ash/80">{support}</p>}
+    </div>
+
+    <div class="sm:justify-self-end">
+      {
+        show.soldOut ? (
+          <span class="inline-flex items-center gap-2 border border-bone/20 px-5 py-2.5 font-sans text-[0.66rem] font-bold uppercase tracking-[0.18em] text-ash">
+            Sold out
+          </span>
+        ) : (
+          <a
+            href={ticketHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 border border-bone/30 px-5 py-2.5 font-sans text-[0.66rem] font-bold uppercase tracking-[0.18em] text-bone transition-colors hover:border-crimson hover:bg-crimson hover:text-void"
+          >
+            <Icon name="ticket" size={14} />
+            {ticketLabel}
+            <span class="sr-only">
+              for {billing} in {formatShowLocation(show)} on {formatShowDate(show)}
+            </span>
+          </a>
+        )
+      }
+    </div>
+  </div>
+</li>

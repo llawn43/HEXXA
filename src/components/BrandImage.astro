@@ -1,0 +1,108 @@
+---
+/**
+ * Renders a real photo when one exists, and an on-brand placeholder when it
+ * does not. Every image on the site goes through here so that dropping real
+ * files into `public/img/` and filling in `src/data/assets.ts` is the only
+ * step needed to swap placeholders for the real thing.
+ *
+ * See ASSETS.md for the required files and their dimensions.
+ */
+import Sigil from "./Sigil.astro";
+
+interface Props {
+  /** Path from `src/data/assets.ts`. When null, a placeholder is drawn. */
+  src?: string | null;
+  alt: string;
+  /** Aspect ratio for the placeholder box, e.g. "2/3" or "16/9". */
+  ratio?: string;
+  /**
+   * Stretch to fill the nearest positioned ancestor instead of sitting in
+   * flow. Use this rather than passing `absolute inset-0` via `class`: the
+   * placeholder needs its own positioning context for its gradient layers,
+   * and a `class` override would collide with it unpredictably.
+   */
+  fill?: boolean;
+  /** Label shown on the placeholder so it is obvious what belongs here. */
+  placeholderLabel?: string;
+  class?: string;
+  /** Skew the placeholder gradient toward crimson or violet for variety. */
+  tone?: "crimson" | "violet" | "split";
+  /** Draw the sigil in the placeholder. Turn off where one is already nearby. */
+  sigil?: boolean;
+  loading?: "lazy" | "eager";
+  sizes?: string;
+  width?: number;
+  height?: number;
+}
+
+const {
+  src = null,
+  alt,
+  ratio = "2/3",
+  fill = false,
+  placeholderLabel,
+  class: className = "",
+  tone = "split",
+  sigil = true,
+  loading = "lazy",
+  sizes,
+  width,
+  height,
+} = Astro.props;
+
+const toneGradient = {
+  crimson:
+    "radial-gradient(120% 90% at 25% 15%, #7a0a19 0%, transparent 60%), radial-gradient(100% 80% at 85% 90%, #d01128 0%, transparent 55%)",
+  violet:
+    "radial-gradient(120% 90% at 25% 15%, #4a0f6e 0%, transparent 60%), radial-gradient(100% 80% at 85% 90%, #a020f0 0%, transparent 55%)",
+  split:
+    "radial-gradient(110% 85% at 15% 10%, #7a0a19 0%, transparent 58%), radial-gradient(110% 85% at 90% 85%, #4a0f6e 0%, transparent 58%), radial-gradient(80% 60% at 55% 50%, #d01128 0%, transparent 70%)",
+  }[tone];
+
+// `fill` drives layout; `ratio` only shapes the box when in flow.
+const box = fill ? "absolute inset-0 h-full w-full" : "relative";
+const boxStyle = fill ? undefined : `aspect-ratio:${ratio}`;
+---
+
+{
+  src ? (
+    <img
+      src={src}
+      alt={alt}
+      loading={loading}
+      decoding="async"
+      sizes={sizes}
+      width={width}
+      height={height}
+      class:list={["h-full w-full object-cover", box, className]}
+      style={boxStyle}
+    />
+  ) : (
+    <div
+      role="img"
+      aria-label={alt}
+      class:list={[
+        "isolate flex items-center justify-center overflow-hidden bg-ink",
+        box,
+        className,
+      ]}
+      style={boxStyle}
+    >
+      <div class="absolute inset-0 opacity-70" style={`background-image:${toneGradient}`}></div>
+
+      <div
+        class="absolute inset-0 opacity-[0.07]"
+        style="background-image:repeating-linear-gradient(135deg,#EDE7DE 0 1px,transparent 1px 9px)"
+      >
+      </div>
+
+      {sigil && <Sigil size={128} class="relative z-10 text-bone/25" spin />}
+
+      {placeholderLabel && (
+        <span class="absolute bottom-3 left-3 right-3 z-10 font-sans text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-bone/70">
+          {placeholderLabel}
+        </span>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://llawn43.github.io/HEXXA/sitemap-index.xml

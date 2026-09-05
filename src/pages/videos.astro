@@ -1,0 +1,100 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import EmbedFacade from "../components/EmbedFacade.astro";
+import CTAButton from "../components/CTAButton.astro";
+
+import { videos, featuredVideo } from "../data/videos";
+import { socials } from "../data/socials";
+
+const youtube =
+  socials.find((social) => social.icon === "youtube")?.href ??
+  "https://www.youtube.com/@hexxaofficial";
+
+const rest = videos.filter((video) => video !== featuredVideo);
+---
+
+<Layout
+  title="Live Sets"
+  description="Full HEXXA festival sets and mixes — Bass Canyon, Lost Lands, Forbidden Kingdom and Escapade."
+>
+  <PageHeader
+    eyebrow="Live sets"
+    title="Witness The Carnage"
+    lede="Full sets and mixes, front to back. Jaw-dropping doubles, twisted edits and complete dubstep destruction."
+  >
+    <div class="mt-8">
+      <CTAButton href={youtube} icon="youtube" external>Subscribe on YouTube</CTAButton>
+    </div>
+  </PageHeader>
+
+  <!-- Featured set, given the full width it deserves. -->
+  <section class="border-b border-bone/10 py-16 lg:py-20">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <EmbedFacade
+        provider="youtube"
+        embedId={featuredVideo.youtubeId}
+        poster={featuredVideo.poster}
+        title={`HEXXA — ${featuredVideo.title}`}
+        fallbackHref={youtube}
+        class="reveal"
+      />
+
+      <div class="reveal mt-8 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+        <div>
+          <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.24em] text-crimson">
+            Featured &middot; {featuredVideo.event} {featuredVideo.year}
+          </span>
+          <h2 class="mt-3 font-display text-3xl leading-tight text-bone sm:text-4xl">
+            {featuredVideo.title}
+          </h2>
+        </div>
+
+        {
+          featuredVideo.description && (
+            <p class="max-w-xl text-pretty font-sans leading-relaxed text-ash">
+              {featuredVideo.description}
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- The rest of the archive. -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-10 md:grid-cols-2 lg:gap-14">
+        {
+          rest.map((video, index) => (
+            <article class="flex flex-col">
+              <EmbedFacade
+                provider="youtube"
+                embedId={video.youtubeId}
+                poster={video.poster}
+                title={`HEXXA — ${video.title}`}
+                fallbackHref={youtube}
+                tone={index % 2 === 0 ? "violet" : "crimson"}
+                class="reveal"
+              />
+
+              <div class="reveal mt-5">
+                <span class="font-sans text-[0.62rem] font-bold uppercase tracking-[0.22em] text-crimson">
+                  {video.event} &middot; {video.year}
+                </span>
+                <h3 class="mt-2 font-display text-2xl leading-tight text-bone">
+                  {video.title}
+                </h3>
+                {video.description && (
+                  <p class="mt-3 text-pretty font-sans text-sm leading-relaxed text-ash">
+                    {video.description}
+                  </p>
+                )}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Layout>

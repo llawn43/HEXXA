@@ -1,0 +1,197 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import BrandImage from "../components/BrandImage.astro";
+import CTAButton from "../components/CTAButton.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import Icon from "../components/Icon.astro";
+import Marquee from "../components/Marquee.astro";
+
+import { contacts, mailto } from "../data/contacts";
+import { bio } from "../data/bio";
+import { images } from "../data/assets";
+import { href } from "../lib/url";
+
+// No backend on a static site, so enquiries go straight to the right inbox
+// with a pre-filled subject rather than through a form that needs a server.
+const enquiryTypes = [
+  {
+    title: "Festivals & touring",
+    detail: "Main stage, bass stage and festival slots worldwide.",
+    role: "Booking",
+    subject: "Festival booking enquiry — HEXXA",
+  },
+  {
+    title: "Club & headline shows",
+    detail: "Headline dates, support slots and B2B sets.",
+    role: "Booking",
+    subject: "Club booking enquiry — HEXXA",
+  },
+  {
+    title: "Press & interviews",
+    detail: "Interviews, features, premieres and guest mixes.",
+    role: "Management",
+    subject: "Press enquiry — HEXXA",
+  },
+  {
+    title: "Label & collaborations",
+    detail: "Release offers, remixes and collaboration requests.",
+    role: "Management",
+    subject: "Label / collab enquiry — HEXXA",
+  },
+];
+
+const contactFor = (role: string) =>
+  contacts.find((contact) => contact.role === role) ?? contacts[0];
+---
+
+<Layout
+  title="Booking"
+  description="Book HEXXA. Management, booking and press contacts for festivals, club shows, interviews and collaborations."
+>
+  <PageHeader
+    eyebrow="Booking enquiries"
+    title="Summon Her"
+    lede="Festivals, headline shows, press and collaborations. Enquiries go straight to the team."
+  />
+
+  <!-- ===================== CONTACT CARDS ===================== -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-6 lg:grid-cols-2">
+        {
+          contacts.map((contact) => (
+            <div class="reveal relative overflow-hidden border border-bone/10 bg-ink p-8 lg:p-10">
+              <div
+                class="pointer-events-none absolute inset-x-0 top-0 h-px bleed-gradient"
+                aria-hidden="true"
+              />
+
+              <p class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.24em] text-crimson">
+                {contact.role}
+                {contact.note && <span class="text-ash"> · {contact.note}</span>}
+              </p>
+
+              <h2 class="mt-4 font-display text-3xl tracking-wide text-bone sm:text-4xl">
+                {contact.name}
+              </h2>
+              <p class="mt-2 font-sans text-sm text-ash">{contact.company}</p>
+
+              <CTAButton
+                href={mailto(contact, `${contact.role} enquiry — HEXXA`)}
+                class="mt-8"
+                icon="mail"
+              >
+                Email {contact.name.split(" ")[0]}
+              </CTAButton>
+
+              <p class="mt-4 font-sans text-sm break-all text-ash">{contact.email}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ENQUIRY ROUTING ===================== -->
+  <section class="border-y border-bone/10 bg-ink py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <SectionHeading eyebrow="What are you booking?" title="Pick A Ritual" />
+
+      <p class="reveal mt-5 max-w-2xl font-sans leading-relaxed text-ash">
+        Choose the closest match and the subject line is filled in for you, so your enquiry
+        lands with the right person.
+      </p>
+
+      <ul class="mt-12 grid gap-4 sm:grid-cols-2">
+        {
+          enquiryTypes.map((enquiry) => {
+            const contact = contactFor(enquiry.role);
+
+            return (
+              <li class="reveal">
+                <a
+                  href={mailto(contact, enquiry.subject)}
+                  class="group flex h-full items-start justify-between gap-5 border border-bone/10 bg-void/40 p-6 transition-colors hover:border-crimson"
+                >
+                  <div>
+                    <h3 class="font-display text-xl tracking-wide text-bone">
+                      {enquiry.title}
+                    </h3>
+                    <p class="mt-2 font-sans text-sm leading-relaxed text-ash">
+                      {enquiry.detail}
+                    </p>
+                    <p class="mt-3 font-sans text-[0.62rem] font-bold uppercase tracking-[0.18em] text-crimson">
+                      {contact.name} · {enquiry.role}
+                    </p>
+                  </div>
+
+                  <Icon
+                    name="arrow"
+                    size={18}
+                    class="mt-1 shrink-0 text-crimson transition-transform group-hover:translate-x-1"
+                  />
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== WHAT PROMOTERS GET ===================== -->
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      <div class="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:gap-16">
+        <div>
+          <SectionHeading eyebrow="For promoters" title="What You're Booking" />
+
+          <p class="reveal mt-6 text-pretty font-sans leading-relaxed text-ash">
+            {bio.short}
+          </p>
+
+          <dl class="reveal mt-10 divide-y divide-bone/10 border-y border-bone/10">
+            {
+              bio.facts.map((fact) => (
+                <div class="flex items-baseline justify-between gap-4 py-3.5">
+                  <dt class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.2em] text-ash">
+                    {fact.label}
+                  </dt>
+                  <dd class="text-right font-sans text-sm text-bone">{fact.value}</dd>
+                </div>
+              ))
+            }
+            <div class="flex items-baseline justify-between gap-4 py-3.5">
+              <dt class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.2em] text-ash">
+                Shared stages
+              </dt>
+              <dd class="text-right font-sans text-sm text-bone">
+                {bio.sharedStages.join(", ")}
+              </dd>
+            </div>
+          </dl>
+
+          <div class="reveal mt-9 flex flex-wrap gap-3">
+            <CTAButton href={href("/press")} icon="download">Full press kit</CTAButton>
+            <CTAButton href={href("/videos")} variant="outline" icon="play">
+              Watch a full set
+            </CTAButton>
+          </div>
+        </div>
+
+        <div class="reveal border border-bone/10">
+          <BrandImage
+            src={images.crowd}
+            alt="A HEXXA crowd mid-set"
+            ratio="3/2"
+            tone="crimson"
+            placeholderLabel="Wide crowd shot — see ASSETS.md"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Marquee items={bio.stages} />
+</Layout>

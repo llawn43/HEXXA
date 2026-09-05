@@ -1,0 +1,106 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import ShowRow from "../components/ShowRow.astro";
+import CTAButton from "../components/CTAButton.astro";
+import Sigil from "../components/Sigil.astro";
+import Marquee from "../components/Marquee.astro";
+
+import { upcomingShows } from "../data/shows";
+import { bio } from "../data/bio";
+import { links } from "../data/socials";
+import { contacts, mailto } from "../data/contacts";
+
+const shows = upcomingShows();
+const bookingContact = contacts.find((contact) => contact.role === "Booking") ?? contacts[0];
+
+// Distinct cities, for the "where she's headed" summary line.
+const cities = [...new Set(shows.map((show) => `${show.city}, ${show.region}`))];
+---
+
+<Layout
+  title="Tour"
+  description="HEXXA tour dates and tickets. Upcoming festivals and club shows across the US."
+  includeEvents
+>
+  <PageHeader
+    eyebrow="Tour dates"
+    title="Upcoming Rituals"
+    lede={
+      shows.length > 0
+        ? `${shows.length} date${shows.length === 1 ? "" : "s"} confirmed across ${cities.length} ${cities.length === 1 ? "city" : "cities"}. Every set a summoning.`
+        : "No dates on the calendar right now. Follow on Bandsintown to be summoned first."
+    }
+  >
+    <div class="mt-8 flex flex-wrap gap-3">
+      <CTAButton href={links.bandsintown} icon="ticket" external>
+        Follow on Bandsintown
+      </CTAButton>
+      <CTAButton
+        href={mailto(bookingContact, "Booking enquiry — HEXXA")}
+        variant="outline"
+        icon="mail"
+      >
+        Book HEXXA
+      </CTAButton>
+    </div>
+  </PageHeader>
+
+  <section class="py-16 lg:py-24">
+    <div class="mx-auto max-w-7xl px-5 lg:px-8">
+      {
+        shows.length > 0 ? (
+          <>
+            <ul class="border-t border-bone/10">
+              {shows.map((show, index) => (
+                <ShowRow show={show} next={index === 0} headingLevel="h2" />
+              ))}
+            </ul>
+
+            <p class="reveal mt-8 max-w-2xl font-sans text-sm leading-relaxed text-ash">
+              Dates are added as they are confirmed. For festival bookings, private events and
+              international enquiries, get in touch with{" "}
+              <a
+                href={mailto(bookingContact, "Booking enquiry — HEXXA")}
+                class="link-wipe text-crimson"
+              >
+                {bookingContact.name} at {bookingContact.company}
+              </a>
+              .
+            </p>
+          </>
+        ) : (
+          <div class="reveal border border-bone/10 bg-ink px-6 py-20 text-center">
+            <Sigil size={96} class="mx-auto text-crimson/40" spin />
+            <h2 class="mt-8 font-display text-3xl text-bone">The circle is quiet</h2>
+            <p class="mx-auto mt-3 max-w-md font-sans text-sm leading-relaxed text-ash">
+              Nothing announced at the moment. Follow on Bandsintown and you will know before
+              anyone else.
+            </p>
+            <CTAButton href={links.bandsintown} class="mt-8" external>
+              Follow on Bandsintown
+            </CTAButton>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- Stages already played: proof for promoters scanning the page. -->
+  <section class="border-t border-bone/10 bg-ink pt-16 pb-4 lg:pt-24">
+    <div class="mx-auto mb-10 max-w-7xl px-5 lg:px-8">
+      <div class="flex items-center gap-3">
+        <span class="h-px w-8 bleed-gradient" aria-hidden="true"></span>
+        <span class="font-sans text-[0.66rem] font-bold uppercase tracking-[0.26em] text-crimson">
+          Previously summoned
+        </span>
+      </div>
+      <h2 class="mt-4 text-[length:var(--text-section)] text-bone">Stages Demolished</h2>
+      <p class="mt-4 max-w-2xl font-sans leading-relaxed text-ash">
+        Shared stages with {bio.sharedStages.join(", ")} and more.
+      </p>
+    </div>
+  </section>
+
+  <Marquee items={bio.stages} />
+</Layout>

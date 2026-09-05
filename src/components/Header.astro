@@ -1,0 +1,211 @@
+---
+import Sigil from "./Sigil.astro";
+import Icon from "./Icon.astro";
+
+import { nav, navCta } from "../data/nav";
+import { primarySocials } from "../data/socials";
+import { href, isCurrent } from "../lib/url";
+
+const currentPath = Astro.url.pathname;
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter,border-color] duration-300 border-b border-transparent"
+  data-header
+>
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
+    <a
+      href={href("/")}
+      class="group flex items-center gap-3"
+      aria-label="HEXXA — home"
+    >
+      <Sigil size={34} class="text-crimson transition-colors group-hover:text-violet" spin />
+      <span class="font-display text-2xl tracking-[0.14em] text-bone lg:text-[1.65rem]">
+        HEXXA
+      </span>
+    </a>
+
+    <nav aria-label="Primary" class="hidden items-center gap-7 lg:flex">
+      {
+        nav.map((item) => (
+          <a
+            href={href(item.path)}
+            aria-current={isCurrent(currentPath, item.path) ? "page" : undefined}
+            class:list={[
+              "link-wipe font-sans text-[0.72rem] font-semibold uppercase tracking-[0.2em] transition-colors",
+              isCurrent(currentPath, item.path)
+                ? "text-crimson"
+                : "text-bone/75 hover:text-bone",
+            ]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+
+      <a
+        href={href(navCta.path)}
+        aria-current={isCurrent(currentPath, navCta.path) ? "page" : undefined}
+        class:list={[
+          "border border-crimson px-4 py-2 font-sans text-[0.72rem] font-bold uppercase tracking-[0.2em] transition-colors",
+          isCurrent(currentPath, navCta.path)
+            ? "bg-crimson text-void"
+            : "text-crimson hover:bg-crimson hover:text-void",
+        ]}
+      >
+        {navCta.label}
+      </a>
+    </nav>
+
+    <button
+      type="button"
+      class="-mr-2 p-2 text-bone lg:hidden"
+      aria-expanded="false"
+      aria-controls="mobile-nav"
+      data-menu-toggle
+    >
+      <span class="sr-only">Open menu</span>
+      <Icon name="menu" size={26} />
+    </button>
+  </div>
+</header>
+
+<!-- Mobile drawer. Hidden from the a11y tree and tab order while closed. -->
+<div
+  id="mobile-nav"
+  class="fixed inset-0 z-[55] hidden overflow-y-auto bg-void lg:hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Site navigation"
+  data-menu-panel
+  hidden
+>
+  <Sigil
+    size={520}
+    spin
+    class="pointer-events-none absolute -right-32 top-24 text-crimson/[0.07]"
+  />
+  <div
+    class="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_60%_at_10%_100%,rgba(160,32,240,0.14)_0%,transparent_65%)]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="relative flex items-center justify-between px-5 py-4">
+    <span class="font-display text-2xl tracking-[0.14em] text-bone">HEXXA</span>
+    <button type="button" class="-mr-2 p-2 text-bone" data-menu-close>
+      <span class="sr-only">Close menu</span>
+      <Icon name="close" size={26} />
+    </button>
+  </div>
+
+  <nav aria-label="Mobile" class="relative flex flex-col px-5 pt-6">
+    {
+      [...nav, navCta].map((item) => (
+        <a
+          href={href(item.path)}
+          aria-current={isCurrent(currentPath, item.path) ? "page" : undefined}
+          class:list={[
+            "border-b border-bone/10 py-4 font-display text-4xl tracking-wide transition-colors",
+            isCurrent(currentPath, item.path) ? "text-crimson" : "text-bone hover:text-crimson",
+          ]}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="relative mt-12 px-5 pb-12">
+    <div class="flex gap-6">
+      {
+        primarySocials.map((social) => (
+          <a
+            href={social.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-bone/60 transition-colors hover:text-crimson"
+          >
+            <span class="sr-only">{social.label}</span>
+            <Icon name={social.icon} size={24} />
+          </a>
+        ))
+      }
+    </div>
+
+    <p class="mt-8 font-display text-lg leading-tight text-crimson">
+      You don't just listen. You summon her.
+    </p>
+  </div>
+</div>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  const panel = document.querySelector<HTMLElement>("[data-menu-panel]");
+  const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const close = document.querySelector<HTMLButtonElement>("[data-menu-close]");
+
+  // The header starts transparent over the hero and gains a backdrop on scroll.
+  const onScroll = () => {
+    if (!header) return;
+    const scrolled = window.scrollY > 24;
+    header.classList.toggle("bg-void/85", scrolled);
+    header.classList.toggle("backdrop-blur-md", scrolled);
+    header.classList.toggle("border-bone/10", scrolled);
+    header.classList.toggle("border-transparent", !scrolled);
+  };
+
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  const setMenu = (open: boolean) => {
+    if (!panel || !toggle) return;
+    panel.hidden = !open;
+    panel.classList.toggle("hidden", !open);
+    toggle.setAttribute("aria-expanded", String(open));
+    // Stop the page behind the drawer from scrolling.
+    document.body.style.overflow = open ? "hidden" : "";
+    if (open) panel.querySelector<HTMLAnchorElement>("a")?.focus();
+    else toggle.focus();
+  };
+
+  toggle?.addEventListener("click", () => setMenu(true));
+  close?.addEventListener("click", () => setMenu(false));
+
+  document.addEventListener("keydown", (event) => {
+    if (!panel || panel.hidden) return;
+
+    if (event.key === "Escape") {
+      setMenu(false);
+      return;
+    }
+
+    // The drawer is a modal overlay, so keep Tab inside it. Without this,
+    // focus walks into the page behind and there is no visible cursor.
+    if (event.key !== "Tab") return;
+
+    const focusables = panel.querySelectorAll<HTMLElement>("a[href], button");
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (!first || !last) return;
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+
+  // Tapping a link navigates; make sure the scroll lock is released first.
+  panel?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => setMenu(false));
+  });
+
+  // Close the drawer if the viewport grows into the desktop nav.
+  window.matchMedia("(min-width: 1024px)").addEventListener("change", (event) => {
+    if (event.matches) setMenu(false);
+  });
+</script>
